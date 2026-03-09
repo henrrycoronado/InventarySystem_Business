@@ -306,6 +306,33 @@ CREATE TABLE sales.pdv_order_details (
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE sales.pdv_comanda_statuses (
+    id          SERIAL PRIMARY KEY,
+    code        VARCHAR(20) NOT NULL UNIQUE,
+    name        VARCHAR(50) NOT NULL,
+    is_active   BOOLEAN DEFAULT TRUE,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE sales.pdv_comandas (
+    id          SERIAL PRIMARY KEY,
+    order_id    INT NOT NULL REFERENCES sales.pdv_orders(id),
+    station_id  INT NOT NULL REFERENCES sales.pdv_stations(id),
+    status_id   INT NOT NULL REFERENCES sales.pdv_comanda_statuses(id),
+    sent_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active   BOOLEAN DEFAULT TRUE,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE sales.pdv_comanda_details (
+    id              SERIAL PRIMARY KEY,
+    comanda_id      INT NOT NULL REFERENCES sales.pdv_comandas(id),
+    order_detail_id INT NOT NULL REFERENCES sales.pdv_order_details(id),
+    quantity        DECIMAL(10,2) NOT NULL,
+    notes           TEXT,
+    is_active       BOOLEAN DEFAULT TRUE,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 -- ==========================================
 -- SEED DATA
 -- ==========================================
@@ -343,3 +370,12 @@ SELECT setval(pg_get_serial_sequence('inventory.movement_statuses', 'id'), coale
 SELECT setval(pg_get_serial_sequence('inventory.movement_types', 'id'), coalesce(max(id), 0) + 1, false) FROM inventory.movement_types;
 SELECT setval(pg_get_serial_sequence('sales.sale_statuses', 'id'), coalesce(max(id), 0) + 1, false) FROM sales.sale_statuses;
 SELECT setval(pg_get_serial_sequence('sales.pdv_order_statuses', 'id'), coalesce(max(id), 0) + 1, false) FROM sales.pdv_order_statuses;
+
+INSERT INTO sales.pdv_comanda_statuses (code, name) VALUES
+('SENT',        'Enviada'),
+('IN_PROGRESS', 'En preparación'),
+('READY',       'Lista'),
+('DELIVERED',   'Entregada'),
+('CANCELLED',   'Anulada');
+
+SELECT setval(pg_get_serial_sequence('sales.pdv_comanda_statuses', 'id'), coalesce(max(id), 0) + 1, false) FROM sales.pdv_comanda_statuses;
