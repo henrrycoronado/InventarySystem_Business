@@ -1,13 +1,17 @@
 using DotNetEnv;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using InventarySystem.Api.src.Core.Infrastructure;
 
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration["ConnectionStrings:DefaultConnection"] =
-    Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? string.Empty;
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? string.Empty;
 
+builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(connectionString));
+
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -42,6 +46,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+app.MapControllers();
 
 app.MapGet("/health", () => Results.Ok(new
 {
