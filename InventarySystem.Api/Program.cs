@@ -13,6 +13,10 @@ using InventarySystem.Api.Modules.Sales.Domain.Interfaces;
 using InventarySystem.Api.Modules.Sales.Application.Interfaces;
 using InventarySystem.Api.Modules.Sales.Application.Services;
 using InventarySystem.Api.Modules.Sales.Infrastructure.Repositories;
+using InventarySystem.Api.Modules.Sales.SubModules.PdV.Domain.Interfaces;
+using InventarySystem.Api.Modules.Sales.SubModules.PdV.Application.Interfaces;
+using InventarySystem.Api.Modules.Sales.SubModules.PdV.Application.Services;
+using InventarySystem.Api.Modules.Sales.SubModules.PdV.Infrastructure.Repositories;
 
 Env.Load();
 
@@ -55,6 +59,19 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<ISellerService, SellerService>();
 builder.Services.AddScoped<ISaleService, SaleService>();
 builder.Services.AddScoped<IReceiptService, ReceiptService>();
+
+builder.Services.AddScoped<IPdvTableRepository, PdvTableRepository>();
+builder.Services.AddScoped<IPdvWaiterRepository, PdvWaiterRepository>();
+builder.Services.AddScoped<IPdvMenuRepository, PdvMenuRepository>();
+builder.Services.AddScoped<IPdvMenuItemRepository, PdvMenuItemRepository>();
+builder.Services.AddScoped<IPdvOrderRepository, PdvOrderRepository>();
+builder.Services.AddScoped<IPdvOrderDetailRepository, PdvOrderDetailRepository>();
+
+builder.Services.AddScoped<IPdvTableService, PdvTableService>();
+builder.Services.AddScoped<IPdvWaiterService, PdvWaiterService>();
+builder.Services.AddScoped<IPdvMenuService, PdvMenuService>();
+builder.Services.AddScoped<IPdvMenuItemService, PdvMenuItemService>();
+builder.Services.AddScoped<IPdvOrderService, PdvOrderService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
