@@ -2,6 +2,7 @@ using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using InventarySystem.Api.src.Core.Infrastructure;
 using InventarySystem.Api.src.Core.Infrastructure.Repositories;
+using InventarySystem.Api.src.Core.Contracts;
 using InventarySystem.Api.src.Core.Domain.Interfaces;
 using InventarySystem.Api.src.Core.Application.Interfaces;
 using InventarySystem.Api.src.Core.Application.Services;
@@ -42,6 +43,9 @@ builder.Services.AddScoped<IStockRepository, StockRepository>();
 builder.Services.AddScoped<IMovementRepository, MovementRepository>();
 builder.Services.AddScoped<IMovementDetailRepository, MovementDetailRepository>();
 builder.Services.AddScoped<IKardexRepository, KardexRepository>();
+builder.Services.AddScoped<ICompanyAttributeRepository, CompanyAttributeRepository>();
+builder.Services.AddScoped<ISkuAttributeValueRepository, SkuAttributeValueRepository>();
+builder.Services.AddScoped<IBatchRepository, BatchRepository>();
 
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ISellerRepository, SellerRepository>();
@@ -54,6 +58,10 @@ builder.Services.AddScoped<ICompanySkuService, CompanySkuService>();
 builder.Services.AddScoped<IStockService, StockService>();
 builder.Services.AddScoped<IMovementService, MovementService>();
 builder.Services.AddScoped<IKardexService, KardexService>();
+builder.Services.AddScoped<ICompanyAttributeService, CompanyAttributeService>();
+builder.Services.AddScoped<ISkuAttributeValueService, SkuAttributeValueService>();
+builder.Services.AddScoped<IBatchService, BatchService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<ISellerService, SellerService>();
@@ -66,12 +74,16 @@ builder.Services.AddScoped<IPdvMenuRepository, PdvMenuRepository>();
 builder.Services.AddScoped<IPdvMenuItemRepository, PdvMenuItemRepository>();
 builder.Services.AddScoped<IPdvOrderRepository, PdvOrderRepository>();
 builder.Services.AddScoped<IPdvOrderDetailRepository, PdvOrderDetailRepository>();
+builder.Services.AddScoped<IPdvStationRepository, PdvStationRepository>();
+builder.Services.AddScoped<IPdvStationCategoryRepository, PdvStationCategoryRepository>();
 
 builder.Services.AddScoped<IPdvTableService, PdvTableService>();
 builder.Services.AddScoped<IPdvWaiterService, PdvWaiterService>();
 builder.Services.AddScoped<IPdvMenuService, PdvMenuService>();
 builder.Services.AddScoped<IPdvMenuItemService, PdvMenuItemService>();
 builder.Services.AddScoped<IPdvOrderService, PdvOrderService>();
+builder.Services.AddScoped<IPdvStationService, PdvStationService>();
+builder.Services.AddScoped<IPdvStationCategoryService, PdvStationCategoryService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

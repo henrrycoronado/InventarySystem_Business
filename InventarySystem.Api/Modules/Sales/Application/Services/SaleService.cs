@@ -1,20 +1,19 @@
-using InventarySystem.Api.Modules.Inventory.Domain.Interfaces;
 using InventarySystem.Api.Modules.Sales.Application.DTOs;
 using InventarySystem.Api.Modules.Sales.Application.Interfaces;
 using InventarySystem.Api.Modules.Sales.Domain.Entities;
 using InventarySystem.Api.Modules.Sales.Domain.Interfaces;
+using InventarySystem.Api.src.Core.Contracts;
 
 namespace InventarySystem.Api.Modules.Sales.Application.Services;
 
 public class SaleService(
     ISaleRepository saleRepository,
     ISaleDetailRepository saleDetailRepository,
-    IStockRepository stockRepository) : ISaleService
+    IInventoryService inventoryService) : ISaleService
 {
     private const int DraftStatusId = 1;
     private const int ConfirmedStatusId = 2;
     private const int CancelledStatusId = 3;
-    private const int OutSaleTypeId = 2;
 
     public async Task<IEnumerable<SaleDto>> GetAllByCompanyAsync(int companyId)
     {
@@ -51,12 +50,8 @@ public class SaleService(
 
         foreach (var detail in details)
         {
-            var stock = await stockRepository.GetBySkuAndWarehouseAsync(detail.SkuId, sale.WarehouseId, detail.BatchId)
-                ?? throw new InvalidOperationException($"Stock not found for SKU {detail.SkuId}");
-
-            stock.Reserve(detail.Quantity);
-            stock.ConfirmReservation(detail.Quantity);
-            await stockRepository.UpdateAsync(stock);
+            await inventoryService.ReserveStockAsync(detail.SkuId, sale.WarehouseId, detail.Quantity, detail.BatchId);
+            await inventoryService.ConfirmReservationAsync(detail.SkuId, sale.WarehouseId, detail.Quantity, detail.BatchId);
         }
 
         await saleRepository.UpdateStatusAsync(id, ConfirmedStatusId);

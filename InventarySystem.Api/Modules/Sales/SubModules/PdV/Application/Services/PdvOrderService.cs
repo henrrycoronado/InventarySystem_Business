@@ -1,10 +1,10 @@
-using InventarySystem.Api.Modules.Inventory.Domain.Interfaces;
 using InventarySystem.Api.Modules.Sales.Domain.Entities;
 using InventarySystem.Api.Modules.Sales.Domain.Interfaces;
 using InventarySystem.Api.Modules.Sales.SubModules.PdV.Application.DTOs;
 using InventarySystem.Api.Modules.Sales.SubModules.PdV.Application.Interfaces;
 using InventarySystem.Api.Modules.Sales.SubModules.PdV.Domain.Entities;
 using InventarySystem.Api.Modules.Sales.SubModules.PdV.Domain.Interfaces;
+using InventarySystem.Api.src.Core.Contracts;
 
 namespace InventarySystem.Api.Modules.Sales.SubModules.PdV.Application.Services;
 
@@ -12,14 +12,13 @@ public class PdvOrderService(
     IPdvOrderRepository orderRepository,
     IPdvOrderDetailRepository orderDetailRepository,
     IPdvMenuItemRepository menuItemRepository,
-    IStockRepository stockRepository,
+    IInventoryService inventoryService,
     ISaleRepository saleRepository,
     ISaleDetailRepository saleDetailRepository) : IPdvOrderService
 {
     private const int OpenStatusId = 1;
     private const int BilledStatusId = 2;
     private const int SentStatusId = 1;
-    private const int SaleDraftStatusId = 1;
     private const int SaleConfirmedStatusId = 2;
 
     public async Task<IEnumerable<PdvOrderDto>> GetAllByCompanyAsync(int companyId)
@@ -46,12 +45,7 @@ public class PdvOrderService(
         var menuItem = await menuItemRepository.GetByIdAsync(dto.MenuItemId)
             ?? throw new KeyNotFoundException($"MenuItem {dto.MenuItemId} not found");
 
-        var stock = await stockRepository.GetBySkuAndWarehouseAsync(menuItem.SkuId, 0, null);
-        if (stock is not null)
-        {
-            stock.Reserve(dto.Quantity);
-            await stockRepository.UpdateAsync(stock);
-        }
+        await inventoryService.ReserveStockAsync(menuItem.SkuId, 0, dto.Quantity);
 
         var detail = PdvOrderDetailEntity.Create(orderId, dto.MenuItemId, dto.StationId, SentStatusId, dto.Quantity, dto.UnitPrice, dto.Notes);
         var created = await orderDetailRepository.CreateAsync(detail);
@@ -73,7 +67,6 @@ public class PdvOrderService(
             ?? throw new KeyNotFoundException($"Order {orderId} not found");
 
         var details = await orderDetailRepository.GetAllByOrderAsync(orderId);
-
         var sale = SaleEntity.Create(order.CompanyId, warehouseId, null, order.CustomerId, SaleConfirmedStatusId, null);
         var createdSale = await saleRepository.CreateAsync(sale);
 
@@ -85,17 +78,11 @@ public class PdvOrderService(
             var saleDetail = SaleDetailEntity.Create(createdSale.Id, menuItem.SkuId, null, detail.Quantity, detail.UnitPrice);
             await saleDetailRepository.CreateAsync(saleDetail);
 
-            var stock = await stockRepository.GetBySkuAndWarehouseAsync(menuItem.SkuId, warehouseId, null);
-            if (stock is not null)
-            {
-                stock.ConfirmReservation(detail.Quantity);
-                await stockRepository.UpdateAsync(stock);
-            }
+            await inventoryService.ConfirmReservationAsync(menuItem.SkuId, warehouseId, detail.Quantity);
         }
 
         await orderRepository.CloseAsync(orderId, createdSale.Id);
         await orderRepository.UpdateStatusAsync(orderId, BilledStatusId);
-
         return Map(order);
     }
 
