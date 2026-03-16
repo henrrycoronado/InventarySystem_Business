@@ -218,6 +218,41 @@ All endpoints follow this response format:
 | PATCH | `/api/companies/{id}/pdv/orders/{id}/items/{detailId}/status` | Update item status |
 | POST | `/api/companies/{id}/pdv/orders/{id}/checkout` | Checkout order |
 
+### Catalog Endpoints
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/catalogs/movement-statuses` | List movement statuses |
+| GET | `/api/catalogs/movement-types` | List movement types |
+| GET | `/api/catalogs/sale-statuses` | List sale statuses |
+| GET | `/api/catalogs/pdv-order-statuses` | List PdV order statuses |
+| GET | `/api/catalogs/pdv-item-statuses` | List PdV item statuses |
+
+### Attributes & Batches Endpoints
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/companies/{id}/attributes` | List company attributes |
+| POST | `/api/companies/{id}/attributes` | Create attribute |
+| DELETE | `/api/companies/{id}/attributes/{id}` | Deactivate attribute |
+| GET | `/api/skus/{skuId}/attributes` | List SKU attribute values |
+| POST | `/api/skus/{skuId}/attributes` | Add attribute value to SKU |
+| DELETE | `/api/skus/{skuId}/attributes/{id}` | Deactivate attribute value |
+| GET | `/api/skus/{skuId}/batches` | List batches by SKU |
+| POST | `/api/skus/{skuId}/batches` | Create batch |
+| DELETE | `/api/skus/{skuId}/batches/{id}` | Deactivate batch |
+
+### Station Endpoints
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/companies/{id}/pdv/stations` | List stations |
+| POST | `/api/companies/{id}/pdv/stations` | Create station |
+| DELETE | `/api/companies/{id}/pdv/stations/{id}` | Deactivate station |
+| GET | `/api/pdv/stations/{stationId}/categories` | List station categories |
+| POST | `/api/pdv/stations/{stationId}/categories` | Assign category to station |
+| DELETE | `/api/pdv/stations/{stationId}/categories/{id}` | Remove category from station |
+
 ---
 
 ## Branching Strategy
@@ -265,4 +300,93 @@ type(module): description in lowercase
 
 ## Known Technical Debt
 
-- `SaleService` and `PdvOrderService` currently inject `IStockRepository` directly from the Inventory module. This should be refactored to use `IInventoryService` defined in `Core/Contracts` to respect module boundaries.
+- `PdvOrderService.AddItemAsync` uses `warehouseId = 0` as placeholder when reserving stock for PdV items. The correct warehouseId should be passed from the order context. Pending refinement.
+
+---
+
+## Integration Guide
+
+### Catalog Endpoints
+
+Use these to populate dropdowns dynamically. Never hardcode IDs.
+
+**GET** `/api/catalogs/movement-statuses`
+**GET** `/api/catalogs/movement-types`
+**GET** `/api/catalogs/sale-statuses`
+**GET** `/api/catalogs/pdv-order-statuses`
+**GET** `/api/catalogs/pdv-item-statuses`
+
+All return:
+```json
+[{ "id": 1, "code": "DRAFT", "name": "Borrador" }]
+```
+
+---
+
+### Attributes & SKU Variants
+
+Attributes define the dimensions of variation for a product (e.g. Talla, Color).
+SKU attribute values are the specific values for each SKU.
+
+**GET** `/api/companies/{companyId}/attributes`
+**POST** `/api/companies/{companyId}/attributes`
+```json
+{ "name": "Talla" }
+```
+
+**GET** `/api/skus/{skuId}/attributes`
+**POST** `/api/skus/{skuId}/attributes`
+```json
+{ "attributeId": 1, "value": "42" }
+```
+
+---
+
+### Batches
+
+Batches allow tracking stock by lot number and expiration date.
+`batchId` is optional in all stock, movement and sale operations.
+
+**GET** `/api/skus/{skuId}/batches`
+**POST** `/api/skus/{skuId}/batches`
+```json
+{
+  "batchNumber": "LOT-2026-001",
+  "manufactureDate": "2026-01-01",
+  "expirationDate": "2027-01-01"
+}
+// manufactureDate and expirationDate are optional
+```
+
+---
+
+### Stations (PdV)
+
+Stations represent physical preparation points (kitchen, bar, cashier).
+Each station handles specific global categories.
+Menu items are assigned to a station — when an order detail is created,
+it inherits the station from the menu item automatically.
+
+**GET** `/api/companies/{companyId}/pdv/stations`
+**POST** `/api/companies/{companyId}/pdv/stations`
+```json
+{ "name": "Cocina" }
+```
+
+**GET** `/api/pdv/stations/{stationId}/categories`
+**POST** `/api/pdv/stations/{stationId}/categories`
+```json
+{ "globalCategoryId": 9 }
+// Links a global category to this station
+// Use GET /api/global-categories to get available categories
+```
+
+### Station flow for PdV kitchen display
+
+```
+1. GET /api/companies/{id}/pdv/stations  ← load stations
+2. GET /api/pdv/stations/{id}/categories ← know which categories each station handles
+3. Poll GET /api/companies/{id}/pdv/orders ← filter by open orders
+4. Filter order details by stationId     ← show only relevant items
+5. PATCH order detail status             ← update as items are prepared
+```
