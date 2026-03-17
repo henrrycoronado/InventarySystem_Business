@@ -13,6 +13,7 @@ public class KardexController(IKardexService service) : ControllerBase
     public async Task<IActionResult> GetBySkuAndWarehouse(int warehouseId, int skuId)
     {
         var result = await service.GetBySkuAndWarehouseAsync(skuId, warehouseId);
-        return Ok(ApiResponse<IEnumerable<KardexDto>>.Ok(result));
+        if (result is null) return NotFound(ApiResponse<object>.Fail($"SKU {skuId} not found"));
+        return Ok(ApiResponse<KardexResponseDto>.Ok(result));
     }
 }

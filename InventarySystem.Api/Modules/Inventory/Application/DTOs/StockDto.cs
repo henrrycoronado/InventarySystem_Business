@@ -10,6 +10,24 @@ public class StockDto
     public decimal ReservedQuantity { get; set; }
     public decimal AvailableQuantity { get; set; }
     public DateTime? LastUpdated { get; set; }
+    public SkuExpandedDto? Sku { get; set; }
+}
+
+public class SkuExpandedDto
+{
+    public int Id { get; set; }
+    public string InternalSku { get; set; } = null!;
+    public decimal RetailPrice { get; set; }
+    public int CompanyProductId { get; set; }
+    public CompanyProductExpandedDto? CompanyProduct { get; set; }
+}
+
+public class CompanyProductExpandedDto
+{
+    public int Id { get; set; }
+    public string? LocalNameAlias { get; set; }
+    public decimal WholesalePrice { get; set; }
+    public GlobalProductExpandedDto? GlobalProduct { get; set; }
 }
 
 public class StockCreateDto

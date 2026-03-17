@@ -30,6 +30,7 @@ public class StockService(IStockRepository repository) : IStockService
     {
         Id = e.Id, WarehouseId = e.WarehouseId, SkuId = e.SkuId, BatchId = e.BatchId,
         Quantity = e.Quantity, ReservedQuantity = e.ReservedQuantity,
-        AvailableQuantity = e.AvailableQuantity, LastUpdated = e.LastUpdated
+        AvailableQuantity = e.AvailableQuantity, LastUpdated = e.LastUpdated,
+        Sku = e.Sku
     };
 }

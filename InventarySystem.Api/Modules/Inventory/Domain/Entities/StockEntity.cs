@@ -1,3 +1,5 @@
+using InventarySystem.Api.Modules.Inventory.Application.DTOs;
+
 namespace InventarySystem.Api.Modules.Inventory.Domain.Entities;
 
 public class StockEntity
@@ -10,6 +12,7 @@ public class StockEntity
     public decimal ReservedQuantity { get; private set; }
     public bool IsActive { get; private set; }
     public DateTime LastUpdated { get; private set; }
+    public SkuExpandedDto? Sku { get; private set; }
 
     public decimal AvailableQuantity => Quantity - ReservedQuantity;
 
@@ -46,6 +49,12 @@ public class StockEntity
         Id = id; WarehouseId = warehouseId; SkuId = skuId; BatchId = batchId;
         Quantity = quantity; ReservedQuantity = reservedQuantity;
         IsActive = isActive; LastUpdated = lastUpdated;
+        return this;
+    }
+
+    internal StockEntity WithExpanded(SkuExpandedDto? sku)
+    {
+        Sku = sku;
         return this;
     }
 }

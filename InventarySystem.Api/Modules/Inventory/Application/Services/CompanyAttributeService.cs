@@ -30,7 +30,8 @@ public class CompanyAttributeService(ICompanyAttributeRepository repository) : I
 
     private static CompanyAttributeDto Map(CompanyAttributeEntity e) => new()
     {
-        Id = e.Id, CompanyId = e.CompanyId, Name = e.Name, CreatedAt = e.CreatedAt
+        Id = e.Id, CompanyId = e.CompanyId, Name = e.Name,
+        CreatedAt = e.CreatedAt, SkuCount = e.SkuCount
     };
 }
 
@@ -53,6 +54,8 @@ public class SkuAttributeValueService(ISkuAttributeValueRepository repository) :
 
     private static SkuAttributeValueDto Map(SkuAttributeValueEntity e) => new()
     {
-        Id = e.Id, SkuId = e.SkuId, AttributeId = e.AttributeId, Value = e.Value, CreatedAt = e.CreatedAt
+        Id = e.Id, SkuId = e.SkuId, AttributeId = e.AttributeId,
+        Value = e.Value, CreatedAt = e.CreatedAt,
+        Attribute = e.Attribute is null ? null : new AttributeSummaryDto { Id = e.Attribute.Id, Name = e.Attribute.Name }
     };
 }

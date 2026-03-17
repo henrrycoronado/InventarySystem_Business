@@ -77,6 +77,7 @@ public class MovementService(
     {
         Id = e.Id, CompanyId = e.CompanyId, WarehouseId = e.WarehouseId,
         TargetWarehouseId = e.TargetWarehouseId, StatusId = e.StatusId,
-        TypeId = e.TypeId, MovementDate = e.MovementDate, Notes = e.Notes
+        TypeId = e.TypeId, MovementDate = e.MovementDate, Notes = e.Notes,
+        Details = e.Details
     };
 }

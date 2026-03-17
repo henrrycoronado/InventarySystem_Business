@@ -1,3 +1,5 @@
+using InventarySystem.Api.Modules.Inventory.Application.DTOs;
+
 namespace InventarySystem.Api.Modules.Inventory.Domain.Entities;
 
 public class MovementEntity
@@ -11,6 +13,7 @@ public class MovementEntity
     public DateTime MovementDate { get; private set; }
     public string? Notes { get; private set; }
     public bool IsActive { get; private set; }
+    public IEnumerable<MovementDetailExpandedDto> Details { get; private set; } = [];
 
     internal MovementEntity() { }
 
@@ -23,6 +26,12 @@ public class MovementEntity
     {
         Id = id; CompanyId = companyId; WarehouseId = warehouseId; TargetWarehouseId = targetWarehouseId;
         StatusId = statusId; TypeId = typeId; MovementDate = movementDate; Notes = notes; IsActive = isActive;
+        return this;
+    }
+
+    internal MovementEntity WithDetails(IEnumerable<MovementDetailExpandedDto> details)
+    {
+        Details = details;
         return this;
     }
 }

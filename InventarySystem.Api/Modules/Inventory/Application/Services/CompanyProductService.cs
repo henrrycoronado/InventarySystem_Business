@@ -31,6 +31,8 @@ public class CompanyProductService(ICompanyProductRepository repository) : IComp
     private static CompanyProductDto Map(CompanyProductEntity e) => new()
     {
         Id = e.Id, CompanyId = e.CompanyId, GlobalProductId = e.GlobalProductId,
-        LocalNameAlias = e.LocalNameAlias, WholesalePrice = e.WholesalePrice, CreatedAt = e.CreatedAt
+        LocalNameAlias = e.LocalNameAlias, WholesalePrice = e.WholesalePrice, CreatedAt = e.CreatedAt,
+        GlobalProduct = e.GlobalProduct,
+        Skus = e.Skus.Select(s => new CompanySkuSummaryDto { Id = s.Id, InternalSku = s.InternalSku, RetailPrice = s.RetailPrice })
     };
 }

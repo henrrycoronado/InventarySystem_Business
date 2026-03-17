@@ -6,6 +6,7 @@ public class CompanyAttributeDto
     public int CompanyId { get; set; }
     public string Name { get; set; } = null!;
     public DateTime? CreatedAt { get; set; }
+    public int SkuCount { get; set; }
 }
 
 public class CompanyAttributeCreateDto
@@ -21,6 +22,13 @@ public class SkuAttributeValueDto
     public int AttributeId { get; set; }
     public string Value { get; set; } = null!;
     public DateTime? CreatedAt { get; set; }
+    public AttributeSummaryDto? Attribute { get; set; }
+}
+
+public class AttributeSummaryDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = null!;
 }
 
 public class SkuAttributeValueCreateDto

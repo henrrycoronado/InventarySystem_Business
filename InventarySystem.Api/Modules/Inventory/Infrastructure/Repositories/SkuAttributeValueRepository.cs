@@ -11,6 +11,7 @@ public class SkuAttributeValueRepository(AppDbContext db) : ISkuAttributeValueRe
     public async Task<IEnumerable<SkuAttributeValueEntity>> GetAllBySkuAsync(int skuId)
     {
         var models = await db.SkuAttributeValues
+            .Include(v => v.Attribute)
             .Where(v => v.SkuId == skuId && v.IsActive == true)
             .ToListAsync();
         return models.Select(Map);
@@ -40,5 +41,6 @@ public class SkuAttributeValueRepository(AppDbContext db) : ISkuAttributeValueRe
     }
 
     private static SkuAttributeValueEntity Map(SkuAttributeValue m) =>
-        new SkuAttributeValueEntity().Init(m.Id, m.SkuId, m.AttributeId, m.Value!, m.IsActive ?? true, m.CreatedAt ?? DateTime.Now);
+        new SkuAttributeValueEntity().Init(m.Id, m.SkuId, m.AttributeId, m.Value!, m.IsActive ?? true, m.CreatedAt ?? DateTime.Now)
+            .WithAttribute(m.Attribute is null ? null : new AttributeSummary(m.Attribute.Id, m.Attribute.Name!));
 }

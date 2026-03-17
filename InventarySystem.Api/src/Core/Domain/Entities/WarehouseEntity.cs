@@ -7,6 +7,7 @@ public class WarehouseEntity
     public string Name { get; private set; } = null!;
     public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
+    public decimal TotalStock { get; private set; }
 
     internal WarehouseEntity() { }
 
@@ -18,6 +19,12 @@ public class WarehouseEntity
     internal WarehouseEntity Init(int id, int companyId, string name, bool isActive, DateTime createdAt)
     {
         Id = id; CompanyId = companyId; Name = name; IsActive = isActive; CreatedAt = createdAt;
+        return this;
+    }
+
+    internal WarehouseEntity WithTotalStock(decimal total)
+    {
+        TotalStock = total;
         return this;
     }
 }

@@ -1,4 +1,8 @@
+using InventarySystem.Api.Modules.Inventory.Application.DTOs;
+
 namespace InventarySystem.Api.Modules.Inventory.Domain.Entities;
+
+public record AttributeSummary(int Id, string Name);
 
 public class SkuAttributeValueEntity
 {
@@ -8,6 +12,7 @@ public class SkuAttributeValueEntity
     public string Value { get; private set; } = null!;
     public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
+    public AttributeSummary? Attribute { get; private set; }
 
     internal SkuAttributeValueEntity() { }
 
@@ -19,6 +24,12 @@ public class SkuAttributeValueEntity
     internal SkuAttributeValueEntity Init(int id, int skuId, int attributeId, string value, bool isActive, DateTime createdAt)
     {
         Id = id; SkuId = skuId; AttributeId = attributeId; Value = value; IsActive = isActive; CreatedAt = createdAt;
+        return this;
+    }
+
+    internal SkuAttributeValueEntity WithAttribute(AttributeSummary? attribute)
+    {
+        Attribute = attribute;
         return this;
     }
 }

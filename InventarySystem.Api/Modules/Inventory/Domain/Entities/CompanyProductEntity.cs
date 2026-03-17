@@ -1,4 +1,8 @@
+using InventarySystem.Api.Modules.Inventory.Application.DTOs;
+
 namespace InventarySystem.Api.Modules.Inventory.Domain.Entities;
+
+public record CompanySkuSummary(int Id, string InternalSku, decimal RetailPrice);
 
 public class CompanyProductEntity
 {
@@ -9,6 +13,8 @@ public class CompanyProductEntity
     public decimal WholesalePrice { get; private set; }
     public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
+    public GlobalProductExpandedDto? GlobalProduct { get; private set; }
+    public IEnumerable<CompanySkuSummary> Skus { get; private set; } = [];
 
     internal CompanyProductEntity() { }
 
@@ -22,6 +28,13 @@ public class CompanyProductEntity
         Id = id; CompanyId = companyId; GlobalProductId = globalProductId;
         LocalNameAlias = localNameAlias; WholesalePrice = wholesalePrice;
         IsActive = isActive; CreatedAt = createdAt;
+        return this;
+    }
+
+    internal CompanyProductEntity WithExpanded(GlobalProductExpandedDto? globalProduct, IEnumerable<CompanySkuSummary> skus)
+    {
+        GlobalProduct = globalProduct;
+        Skus = skus;
         return this;
     }
 }

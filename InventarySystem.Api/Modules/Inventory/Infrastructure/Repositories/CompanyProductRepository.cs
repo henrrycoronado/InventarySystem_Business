@@ -11,6 +11,9 @@ public class CompanyProductRepository(AppDbContext db) : ICompanyProductReposito
     public async Task<IEnumerable<CompanyProductEntity>> GetAllByCompanyAsync(int companyId)
     {
         var models = await db.CompanyProducts
+            .Include(p => p.GlobalProduct)
+                .ThenInclude(gp => gp!.Category)
+            .Include(p => p.CompanySkus.Where(s => s.IsActive == true))
             .Where(p => p.CompanyId == companyId && p.IsActive == true)
             .ToListAsync();
         return models.Select(Map);
@@ -19,6 +22,9 @@ public class CompanyProductRepository(AppDbContext db) : ICompanyProductReposito
     public async Task<CompanyProductEntity?> GetByIdAsync(int id, int companyId)
     {
         var model = await db.CompanyProducts
+            .Include(p => p.GlobalProduct)
+                .ThenInclude(gp => gp!.Category)
+            .Include(p => p.CompanySkus.Where(s => s.IsActive == true))
             .FirstOrDefaultAsync(p => p.Id == id && p.CompanyId == companyId && p.IsActive == true);
         return model is null ? null : Map(model);
     }
@@ -48,5 +54,21 @@ public class CompanyProductRepository(AppDbContext db) : ICompanyProductReposito
     }
 
     private static CompanyProductEntity Map(CompanyProduct m) =>
-        new CompanyProductEntity().Init(m.Id, m.CompanyId, m.GlobalProductId ?? 0, m.LocalNameAlias, m.WholesalePrice ?? 0, m.IsActive ?? true, m.CreatedAt ?? DateTime.Now);
+        new CompanyProductEntity().Init(m.Id, m.CompanyId, m.GlobalProductId ?? 0, m.LocalNameAlias, m.WholesalePrice ?? 0, m.IsActive ?? true, m.CreatedAt ?? DateTime.Now)
+            .WithExpanded(
+                m.GlobalProduct is null ? null : new()
+                {
+                    Id = m.GlobalProduct.Id,
+                    Name = m.GlobalProduct.Name!,
+                    Brand = m.GlobalProduct.Brand,
+                    UpcBarcode = m.GlobalProduct.UpcBarcode,
+                    CategoryId = m.GlobalProduct.CategoryId,
+                    Category = m.GlobalProduct.Category is null ? null : new()
+                    {
+                        Id = m.GlobalProduct.Category.Id,
+                        Name = m.GlobalProduct.Category.Name!
+                    }
+                },
+                m.CompanySkus.Select(s => new CompanySkuSummary(s.Id, s.InternalSku!, s.RetailPrice ?? 0))
+            );
 }

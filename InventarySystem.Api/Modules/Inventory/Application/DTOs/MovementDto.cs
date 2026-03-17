@@ -10,6 +10,17 @@ public class MovementDto
     public int TypeId { get; set; }
     public DateTime MovementDate { get; set; }
     public string? Notes { get; set; }
+    public IEnumerable<MovementDetailExpandedDto> Details { get; set; } = [];
+}
+
+public class MovementDetailExpandedDto
+{
+    public int Id { get; set; }
+    public int SkuId { get; set; }
+    public int? BatchId { get; set; }
+    public decimal Quantity { get; set; }
+    public decimal? UnitCost { get; set; }
+    public SkuExpandedDto? Sku { get; set; }
 }
 
 public class MovementCreateDto

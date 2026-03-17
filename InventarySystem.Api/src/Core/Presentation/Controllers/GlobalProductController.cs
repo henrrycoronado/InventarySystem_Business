@@ -10,9 +10,9 @@ namespace InventarySystem.Api.src.Core.Presentation.Controllers;
 public class GlobalProductController(IGlobalProductService service) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] int? companyId)
     {
-        var result = await service.GetAllActiveAsync();
+        var result = await service.GetAllActiveAsync(companyId);
         return Ok(ApiResponse<IEnumerable<GlobalProductDto>>.Ok(result));
     }
 

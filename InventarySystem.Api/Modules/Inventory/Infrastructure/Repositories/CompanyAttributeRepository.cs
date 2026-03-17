@@ -13,7 +13,20 @@ public class CompanyAttributeRepository(AppDbContext db) : ICompanyAttributeRepo
         var models = await db.CompanyAttributes
             .Where(a => a.CompanyId == companyId && a.IsActive == true)
             .ToListAsync();
-        return models.Select(Map);
+
+        var attributeIds = models.Select(a => a.Id).ToList();
+        var skuCounts = await db.SkuAttributeValues
+            .Where(v => attributeIds.Contains(v.AttributeId) && v.IsActive == true)
+            .GroupBy(v => v.AttributeId)
+            .Select(g => new { AttributeId = g.Key, Count = g.Count() })
+            .ToListAsync();
+
+        return models.Select(m =>
+        {
+            var count = skuCounts.FirstOrDefault(s => s.AttributeId == m.Id)?.Count ?? 0;
+            return new CompanyAttributeEntity().Init(m.Id, m.CompanyId, m.Name!, m.IsActive ?? true, m.CreatedAt ?? DateTime.Now)
+                .WithSkuCount(count);
+        });
     }
 
     public async Task<CompanyAttributeEntity?> GetByIdAsync(int id, int companyId)
