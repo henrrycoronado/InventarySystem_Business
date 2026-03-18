@@ -55,7 +55,7 @@ public class SaleService(
         }
 
         await saleRepository.UpdateStatusAsync(id, ConfirmedStatusId);
-        return Map(sale);
+        return Map(await saleRepository.GetByIdAsync(id) ?? sale);
     }
 
     public async Task<SaleDto> CancelAsync(int id)
@@ -64,7 +64,7 @@ public class SaleService(
             ?? throw new KeyNotFoundException($"Sale {id} not found");
 
         await saleRepository.UpdateStatusAsync(id, CancelledStatusId);
-        return Map(sale);
+        return Map(await saleRepository.GetByIdAsync(id) ?? sale);
     }
 
     public async Task DeactivateAsync(int id) => await saleRepository.DeactivateAsync(id);
@@ -73,6 +73,8 @@ public class SaleService(
     {
         Id = e.Id, CompanyId = e.CompanyId, WarehouseId = e.WarehouseId,
         SellerId = e.SellerId, CustomerId = e.CustomerId, StatusId = e.StatusId,
-        SaleDate = e.SaleDate, Notes = e.Notes, CreatedAt = e.CreatedAt
+        SaleDate = e.SaleDate, Notes = e.Notes, CreatedAt = e.CreatedAt,
+        Status = e.Status, Customer = e.Customer, Seller = e.Seller,
+        Details = e.Details
     };
 }

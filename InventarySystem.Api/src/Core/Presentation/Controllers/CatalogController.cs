@@ -58,4 +58,25 @@ public class CatalogController(AppDbContext db) : ControllerBase
             .ToListAsync();
         return Ok(ApiResponse<object>.Ok(result));
     }
+
+    [HttpGet("/api/companies/{companyId:int}/categories-in-use")]
+    public async Task<IActionResult> GetCategoriesInUse(int companyId)
+    {
+        var categoryIds = await db.CompanyProducts
+            .Where(cp => cp.CompanyId == companyId && cp.IsActive == true && cp.GlobalProductId != null)
+            .Join(db.GlobalProducts,
+                cp => cp.GlobalProductId,
+                gp => gp.Id,
+                (cp, gp) => gp.CategoryId)
+            .Where(id => id != null)
+            .Distinct()
+            .ToListAsync();
+
+        var categories = await db.GlobalCategories
+            .Where(c => categoryIds.Contains(c.Id) && c.IsActive == true)
+            .Select(c => new { c.Id, c.Name })
+            .ToListAsync();
+
+        return Ok(ApiResponse<object>.Ok(categories));
+    }
 }
