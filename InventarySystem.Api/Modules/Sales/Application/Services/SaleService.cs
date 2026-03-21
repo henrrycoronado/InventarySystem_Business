@@ -14,6 +14,7 @@ public class SaleService(
     private const int DraftStatusId = 1;
     private const int ConfirmedStatusId = 2;
     private const int CancelledStatusId = 3;
+    private const int OutSaleTypeId = 2;
 
     public async Task<IEnumerable<SaleDto>> GetAllByCompanyAsync(int companyId)
     {
@@ -47,12 +48,21 @@ public class SaleService(
             ?? throw new KeyNotFoundException($"Sale {id} not found");
 
         var details = await saleDetailRepository.GetAllBySaleAsync(id);
+        var detailList = details.ToList();
 
-        foreach (var detail in details)
+        foreach (var detail in detailList)
         {
             await inventoryService.ReserveStockAsync(detail.SkuId, sale.WarehouseId, detail.Quantity, detail.BatchId);
             await inventoryService.ConfirmReservationAsync(detail.SkuId, sale.WarehouseId, detail.Quantity, detail.BatchId);
         }
+
+        await inventoryService.RegisterOutgoingMovementAsync(
+            sale.CompanyId,
+            sale.WarehouseId,
+            OutSaleTypeId,
+            $"Salida automática por venta #{id}",
+            detailList.Select(d => (d.SkuId, d.BatchId, d.Quantity, (decimal?)d.UnitPrice)).ToList()
+        );
 
         await saleRepository.UpdateStatusAsync(id, ConfirmedStatusId);
         return Map(await saleRepository.GetByIdAsync(id) ?? sale);
