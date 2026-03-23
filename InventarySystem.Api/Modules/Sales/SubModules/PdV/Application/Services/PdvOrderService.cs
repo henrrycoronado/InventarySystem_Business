@@ -67,10 +67,12 @@ public class PdvOrderService(
             ?? throw new KeyNotFoundException($"Order {orderId} not found");
 
         var details = await orderDetailRepository.GetAllByOrderAsync(orderId);
+        var detailList = details.ToList();
+
         var sale = SaleEntity.Create(order.CompanyId, warehouseId, null, order.CustomerId, SaleConfirmedStatusId, null);
         var createdSale = await saleRepository.CreateAsync(sale);
 
-        foreach (var detail in details)
+        foreach (var detail in detailList)
         {
             var menuItem = await menuItemRepository.GetByIdAsync(detail.MenuItemId)
                 ?? throw new KeyNotFoundException($"MenuItem {detail.MenuItemId} not found");
@@ -80,6 +82,18 @@ public class PdvOrderService(
 
             await inventoryService.ConfirmReservationAsync(menuItem.SkuId, warehouseId, detail.Quantity);
         }
+
+        await inventoryService.RegisterOutgoingMovementAsync(
+            order.CompanyId,
+            warehouseId,
+            2,
+            $"Salida automática por orden PdV #{orderId}",
+            detailList.Select(async detail =>
+            {
+                var menuItem = await menuItemRepository.GetByIdAsync(detail.MenuItemId);
+                return (menuItem!.SkuId, (int?)null, detail.Quantity, (decimal?)detail.UnitPrice);
+            }).Select(t => t.Result).ToList()
+        );
 
         await orderRepository.CloseAsync(orderId, createdSale.Id);
         await orderRepository.UpdateStatusAsync(orderId, BilledStatusId);
