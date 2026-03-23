@@ -35,17 +35,17 @@ public class PdvOrderService(
 
     public async Task<PdvOrderDto> OpenAsync(PdvOrderCreateDto dto)
     {
-        var entity = PdvOrderEntity.Create(dto.CompanyId, dto.TableId, dto.WaiterId, OpenStatusId, dto.CustomerId);
+        var entity = PdvOrderEntity.Create(dto.CompanyId, dto.WarehouseId, dto.TableId, dto.WaiterId, OpenStatusId, dto.CustomerId);
         var created = await orderRepository.CreateAsync(entity);
         return Map(created);
     }
 
-    public async Task<PdvOrderDetailDto> AddItemAsync(int orderId, PdvOrderAddItemDto dto)
+    public async Task<PdvOrderDetailDto> AddItemAsync(int orderId, int warehouseId, PdvOrderAddItemDto dto)
     {
         var menuItem = await menuItemRepository.GetByIdAsync(dto.MenuItemId)
             ?? throw new KeyNotFoundException($"MenuItem {dto.MenuItemId} not found");
 
-        await inventoryService.ReserveStockAsync(menuItem.SkuId, 0, dto.Quantity);
+        await inventoryService.ReserveStockAsync(menuItem.SkuId, warehouseId, dto.Quantity);
 
         var detail = PdvOrderDetailEntity.Create(orderId, dto.MenuItemId, dto.StationId, SentStatusId, dto.Quantity, dto.UnitPrice, dto.Notes);
         var created = await orderDetailRepository.CreateAsync(detail);
@@ -90,8 +90,9 @@ public class PdvOrderService(
 
     private static PdvOrderDto Map(PdvOrderEntity e) => new()
     {
-        Id = e.Id, CompanyId = e.CompanyId, TableId = e.TableId, WaiterId = e.WaiterId,
-        StatusId = e.StatusId, CustomerId = e.CustomerId, SaleId = e.SaleId,
+        Id = e.Id, CompanyId = e.CompanyId, WarehouseId = e.WarehouseId,
+        TableId = e.TableId, WaiterId = e.WaiterId, StatusId = e.StatusId,
+        CustomerId = e.CustomerId, SaleId = e.SaleId,
         OpenedAt = e.OpenedAt, ClosedAt = e.ClosedAt, CreatedAt = e.CreatedAt
     };
 

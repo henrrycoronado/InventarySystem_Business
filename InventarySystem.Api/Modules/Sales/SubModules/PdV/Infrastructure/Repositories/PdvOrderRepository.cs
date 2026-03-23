@@ -28,6 +28,7 @@ public class PdvOrderRepository(AppDbContext db) : IPdvOrderRepository
         var model = new PdvOrder
         {
             CompanyId = entity.CompanyId,
+            WarehouseId = entity.WarehouseId,
             TableId = entity.TableId,
             WaiterId = entity.WaiterId,
             StatusId = entity.StatusId,
@@ -67,5 +68,5 @@ public class PdvOrderRepository(AppDbContext db) : IPdvOrderRepository
     }
 
     private static PdvOrderEntity Map(PdvOrder m) =>
-        new PdvOrderEntity().Init(m.Id, m.CompanyId, m.TableId, m.WaiterId, m.StatusId, m.CustomerId, m.SaleId, m.OpenedAt ?? DateTime.Now, m.ClosedAt, m.IsActive ?? true, m.CreatedAt ?? DateTime.Now);
+        new PdvOrderEntity().Init(m.Id, m.CompanyId, m.WarehouseId, m.TableId, m.WaiterId, m.StatusId, m.CustomerId, m.SaleId, m.OpenedAt ?? DateTime.Now, m.ClosedAt, m.IsActive ?? true, m.CreatedAt ?? DateTime.Now);
 }

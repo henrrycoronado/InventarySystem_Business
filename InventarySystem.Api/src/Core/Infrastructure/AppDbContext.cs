@@ -606,6 +606,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.StatusId).HasColumnName("status_id");
             entity.Property(e => e.TableId).HasColumnName("table_id");
             entity.Property(e => e.WaiterId).HasColumnName("waiter_id");
+            entity.Property(e => e.WarehouseId).HasColumnName("warehouse_id");
 
             entity.HasOne(d => d.Company).WithMany(p => p.PdvOrders)
                 .HasForeignKey(d => d.CompanyId)
@@ -634,6 +635,11 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.WaiterId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("pdv_orders_waiter_id_fkey");
+
+            entity.HasOne(d => d.Warehouse).WithMany(p => p.PdvOrders)
+                .HasForeignKey(d => d.WarehouseId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("pdv_orders_warehouse_id_fkey");
         });
 
         modelBuilder.Entity<PdvOrderDetail>(entity =>

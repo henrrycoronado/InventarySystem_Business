@@ -23,6 +23,8 @@ public partial class Warehouse
 
     public virtual ICollection<Movement> MovementWarehouses { get; set; } = new List<Movement>();
 
+    public virtual ICollection<PdvOrder> PdvOrders { get; set; } = new List<PdvOrder>();
+
     public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
 
     public virtual ICollection<Stock> Stocks { get; set; } = new List<Stock>();

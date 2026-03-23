@@ -33,21 +33,15 @@ public class PdvOrderController(IPdvOrderService service) : ControllerBase
     }
 
     [HttpPost("{id:int}/items")]
-    public async Task<IActionResult> AddItem(int companyId, int id, [FromBody] PdvOrderAddItemDto dto)
+    public async Task<IActionResult> AddItem(int companyId, int id, [FromQuery] int warehouseId, [FromBody] PdvOrderAddItemDto dto)
     {
         try
         {
-            var result = await service.AddItemAsync(id, dto);
+            var result = await service.AddItemAsync(id, warehouseId, dto);
             return Ok(ApiResponse<PdvOrderDetailDto>.Ok(result));
         }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ApiResponse<object>.Fail(ex.Message));
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ApiResponse<object>.Fail(ex.Message));
-        }
+        catch (KeyNotFoundException ex) { return NotFound(ApiResponse<object>.Fail(ex.Message)); }
+        catch (InvalidOperationException ex) { return BadRequest(ApiResponse<object>.Fail(ex.Message)); }
     }
 
     [HttpPatch("{id:int}/items/{detailId:int}/status")]
@@ -58,10 +52,7 @@ public class PdvOrderController(IPdvOrderService service) : ControllerBase
             var result = await service.UpdateItemStatusAsync(id, detailId, statusId);
             return Ok(ApiResponse<PdvOrderDetailDto>.Ok(result));
         }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ApiResponse<object>.Fail(ex.Message));
-        }
+        catch (KeyNotFoundException ex) { return NotFound(ApiResponse<object>.Fail(ex.Message)); }
     }
 
     [HttpPost("{id:int}/checkout")]
@@ -72,27 +63,14 @@ public class PdvOrderController(IPdvOrderService service) : ControllerBase
             var result = await service.CheckoutAsync(id, warehouseId);
             return Ok(ApiResponse<PdvOrderDto>.Ok(result));
         }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ApiResponse<object>.Fail(ex.Message));
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ApiResponse<object>.Fail(ex.Message));
-        }
+        catch (KeyNotFoundException ex) { return NotFound(ApiResponse<object>.Fail(ex.Message)); }
+        catch (InvalidOperationException ex) { return BadRequest(ApiResponse<object>.Fail(ex.Message)); }
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Deactivate(int companyId, int id)
     {
-        try
-        {
-            await service.DeactivateAsync(id);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound(ApiResponse<object>.Fail($"Order {id} not found"));
-        }
+        try { await service.DeactivateAsync(id); return NoContent(); }
+        catch (KeyNotFoundException) { return NotFound(ApiResponse<object>.Fail($"Order {id} not found")); }
     }
 }

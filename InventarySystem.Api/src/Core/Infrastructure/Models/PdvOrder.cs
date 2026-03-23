@@ -9,6 +9,8 @@ public partial class PdvOrder
 
     public int CompanyId { get; set; }
 
+    public int WarehouseId { get; set; }
+
     public int TableId { get; set; }
 
     public int WaiterId { get; set; }
@@ -40,4 +42,6 @@ public partial class PdvOrder
     public virtual PdvTable Table { get; set; } = null!;
 
     public virtual PdvWaiter Waiter { get; set; } = null!;
+
+    public virtual Warehouse Warehouse { get; set; } = null!;
 }

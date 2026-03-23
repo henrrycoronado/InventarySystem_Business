@@ -4,6 +4,7 @@ public class PdvOrderDto
 {
     public int Id { get; set; }
     public int CompanyId { get; set; }
+    public int WarehouseId { get; set; }
     public int TableId { get; set; }
     public int WaiterId { get; set; }
     public int StatusId { get; set; }
@@ -17,6 +18,7 @@ public class PdvOrderDto
 public class PdvOrderCreateDto
 {
     public int CompanyId { get; set; }
+    public int WarehouseId { get; set; }
     public int TableId { get; set; }
     public int WaiterId { get; set; }
     public int? CustomerId { get; set; }

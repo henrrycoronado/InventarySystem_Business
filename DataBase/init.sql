@@ -303,6 +303,7 @@ CREATE TABLE sales.pdv_order_statuses (
 CREATE TABLE sales.pdv_orders (
     id          SERIAL PRIMARY KEY,
     company_id  INT NOT NULL REFERENCES shared.companies(id),
+    warehouse_id INT NOT NULL REFERENCES shared.warehouses(id),
     table_id    INT NOT NULL REFERENCES sales.pdv_tables(id),
     waiter_id   INT NOT NULL REFERENCES sales.pdv_waiters(id),
     status_id   INT NOT NULL REFERENCES sales.pdv_order_statuses(id),
@@ -663,8 +664,8 @@ INSERT INTO sales.sale_details (sale_id, sku_id, quantity, unit_price) VALUES
 INSERT INTO sales.receipts (sale_id, total_amount) VALUES
 (1, 79.00);
 
-INSERT INTO sales.pdv_orders (company_id, table_id, waiter_id, status_id, customer_id, sale_id, opened_at, closed_at) VALUES
-(1, 1, 1, 2, 1, 1, CURRENT_TIMESTAMP - INTERVAL '30 minutes', CURRENT_TIMESTAMP);
+INSERT INTO sales.pdv_orders (company_id, warehouse_id, table_id, waiter_id, status_id, customer_id, sale_id, opened_at, closed_at) VALUES
+(1, 1, 1, 1, 2, 1, 1, CURRENT_TIMESTAMP - INTERVAL '30 minutes', CURRENT_TIMESTAMP);
 
 INSERT INTO sales.pdv_order_details (order_id, menu_item_id, station_id, status_id, quantity, unit_price) VALUES
 (1, 3, 1, 4, 1, 75.00),
@@ -932,16 +933,16 @@ INSERT INTO sales.receipts (sale_id, total_amount) VALUES
 (4, 43.00),
 (5, 28.00);
 
-INSERT INTO sales.pdv_orders (company_id, table_id, waiter_id, status_id, customer_id, sale_id, opened_at, closed_at) VALUES
-(3, 4, 5, 2, 7, 4, CURRENT_TIMESTAMP - INTERVAL '2 hours', CURRENT_TIMESTAMP),
-(3, 7, 5, 2, 8, 5, CURRENT_TIMESTAMP - INTERVAL '1 hour', CURRENT_TIMESTAMP);
+INSERT INTO sales.pdv_orders (company_id, warehouse_id, table_id, waiter_id, status_id, customer_id, sale_id, opened_at, closed_at) VALUES
+(3, 7, 4, 5, 2, 7, 4, CURRENT_TIMESTAMP - INTERVAL '2 hours', CURRENT_TIMESTAMP),
+(3, 7, 7, 5, 2, 8, 5, CURRENT_TIMESTAMP - INTERVAL '1 hour', CURRENT_TIMESTAMP);
 
 INSERT INTO sales.pdv_order_details (order_id, menu_item_id, station_id, status_id, quantity, unit_price) VALUES
 (2, 26, 4, 4, 2, 12.00),
 (2, 27, 4, 4, 1, 15.00),
 (2, 30, 5, 4, 2, 2.00),
 (3, 29, 5, 4, 4, 3.00),
-(3, 34, 5, 4, 2, 8.00);
+(3, 30, 5, 4, 2, 8.00);
 
 -- ==========================================
 -- COMPANY 4 — Abarrotes Don Carlos
